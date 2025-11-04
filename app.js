@@ -1,5 +1,5 @@
 // Ledger Frontend (Option A) — static site that calls Apps Script JSON API
-const apiBase = 'https://script.google.com/macros/s/AKfycby6cg6hsyam7eIuSV4P2Vonc3QPTJ-3cHMEyqh8qOxzXa9Jis1mZYWJFFnAUIuGON7lsA/exec';
+const apiBase = 'https://script.google.com/macros/s/AKfycbxgDvRpTCZlYhOyHZ1PJRH7swMcGuiPGVL1JMDRVe0liaLbBhwHwf8__HBTtFT4reBejQ/exec';
 const apiToken = 'kdfj39fh_12AF!98'; // set same token in Apps Script Properties
 const headers = {'Authorization': 'Bearer ' + apiToken};
 
