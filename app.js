@@ -1,11 +1,12 @@
 // Ledger Frontend (Option A) — static site that calls Apps Script JSON API
 const apiBase = 'https://script.google.com/macros/s/AKfycbxgDvRpTCZlYhOyHZ1PJRH7swMcGuiPGVL1JMDRVe0liaLbBhwHwf8__HBTtFT4reBejQ/exec';
 const apiToken = 'kdfj39fh_12AF!98'; // set same token in Apps Script Properties
-/*const headers = {'Authorization': 'Bearer ' + apiToken};*/
+
 const q = (route, params = {}) => {
   const sp = new URLSearchParams({ route, auth: apiToken, ...params });
   return `${apiBase}?${sp.toString()}`;
 };
+
 // State
 let currentTicket = null;
 let lastFive = null;
@@ -19,8 +20,13 @@ function formatMoney(n){
   const v = Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0});
   return sign + '$' + v;
 }
+
 function pctChip(node, cur, prev){
-  if (prev === 0 || prev === null || prev === undefined){ node.textContent='--'; node.className='delta-chip'; return; }
+  if (prev === 0 || prev === null || prev === undefined){
+    node.textContent='--';
+    node.className='delta-chip';
+    return;
+  }
   const d = (cur - prev) / Math.abs(prev);
   const pct = (d*100).toFixed(1) + '%';
   node.textContent = (d>=0?'▲ ':'▼ ') + pct;
@@ -65,8 +71,8 @@ function renderCharts(latest, series){
     data:{
       labels: series.dates,
       datasets:[
-        {label:'Debt', data: series.debt, stack:'stack0'},
-        {label:'Cash', data: series.cash, stack:'stack0'},
+        {label:'Debt',  data: series.debt,  stack:'stack0'},
+        {label:'Cash',  data: series.cash,  stack:'stack0'},
         {label:'Avail', data: series.avail, stack:'stack0'}
       ]
     },
@@ -80,7 +86,6 @@ function renderCharts(latest, series){
 
 function zeroCenteredBar(span, delta){
   const inner = span.querySelector('.bar-inner');
-  const maxAbs = 1; // normalized relative bar; UI only
   const widthPct = Math.min(100, Math.abs(delta)*100);
   inner.style.width = widthPct + '%';
   inner.style.transform = delta>=0 ? 'translateX(50%)' : 'translateX(50%) scaleX(-1)';
@@ -151,7 +156,7 @@ function renderTicket(t){
 // Fetch helpers
 async function getJSON(url) {
   try {
-    const r = await fetch(url);               // no headers for GET
+    const r = await fetch(url);               // no headers for GET (avoids preflight)
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return await r.json();
   } catch (err) {
@@ -160,28 +165,27 @@ async function getJSON(url) {
   }
 }
 
-
 async function load(){
   // accounts meta
-  const meta = await getJSON('?route=accounts');
+  const meta = await getJSON(q('accounts'));
   accountsMeta = meta.reduce((acc, a)=>{
     acc[a.accountId] = {label:a.label, type:a.type, limit:a.limit, apr:a.apr};
     return acc;
   },{});
 
-  const latest = await getJSON('?route=ticketLatest');
-  const series = await getJSON('?route=seriesLast5');
+  const latest = await getJSON(q('ticketLatest'));
+  const series = await getJSON(q('seriesLast5'));
   lastFive = series;
   renderTicket(latest);
   renderCharts(latest, series);
 
   // pager
   el('prevBtn').onclick = async()=>{
-    const t = await getJSON(`?route=ticketPrev&date=${encodeURIComponent(currentTicket.ticket.date)}`);
+    const t = await getJSON(q('ticketPrev', { date: currentTicket.ticket.date }));
     if (t) renderTicket(t);
   };
   el('nextBtn').onclick = async()=>{
-    const t = await getJSON(`?route=ticketNext&date=${encodeURIComponent(currentTicket.ticket.date)}`);
+    const t = await getJSON(q('ticketNext', { date: currentTicket.ticket.date }));
     if (t) renderTicket(t);
   };
 
@@ -241,12 +245,16 @@ async function doSave(){
     });
   });
   const body = {date: new Date().toISOString().slice(0,10), lines};
-  const r = await fetch(apiBase+'?route=ticketCreate',{
+
+  const r = await fetch(q('ticketCreate'), {
     method:'POST',
-    headers:{...headers,'Content-Type':'application/json'},
+    headers:{ 'Content-Type':'application/json' },
     body: JSON.stringify(body)
   });
-  if(!r.ok){ alert('Save failed'); return; }
+  if(!r.ok){
+    alert('Save failed');
+    return;
+  }
   await load();
 }
 
