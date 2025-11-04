@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ledger — Tickets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="./app.js" type="module" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="headline">
+      <div class="headline-number" id="netWorth">--</div>
+      <div class="headline-row">
+        <span class="labelless green" id="assets">--</span>
+        <span class="delta-chip" id="assetsDelta">--</span>
+      </div>
+      <div class="headline-row">
+        <span class="labelless red" id="debts">--</span>
+        <span class="delta-chip" id="debtsDelta">--</span>
+      </div>
+    </div>
+    <div class="controls">
+      <button id="editBtn" class="btn">Edit</button>
+    </div>
+  </header>
+
+  <section class="charts">
+    <div class="chart-card">
+      <h3>Accounts distribution</h3>
+      <canvas id="pieChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Last 5 tickets</h3>
+      <canvas id="barChart"></canvas>
+    </div>
+  </section>
+
+  <section class="ticket-nav">
+    <button id="prevBtn" class="nav">&larr;</button>
+    <div id="ticketDate">--/--/----</div>
+    <button id="nextBtn" class="nav">&rarr;</button>
+  </section>
+
+  <main id="ticketView" class="ticket" data-mode="view"></main>
+
+  <footer class="cards-footer" id="cardsFooter"></footer>
+
+  <dialog id="saveDialog">
+    <form method="dialog" class="modal">
+      <p class="modal-title">Save as new ticket?</p>
+      <p class="muted">This creates a dated snapshot; history remains intact.</p>
+      <menu>
+        <button value="cancel" class="btn ghost">Cancel</button>
+        <button value="confirm" class="btn primary">Save</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <template id="groupTemplate">
+    <section class="group">
+      <h4 class="group-title"></h4>
+      <div class="rows"></div>
+    </section>
+  </template>
+
+  <template id="rowTemplate">
+    <div class="row">
+      <div class="col label"></div>
+      <div class="col value number"></div>
+      <div class="col limit number muted"></div>
+      <div class="col apr number muted"></div>
+      <div class="col avail number"></div>
+      <div class="col delta">
+        <span class="delta-chip small"></span>
+        <span class="delta-bar" aria-hidden="true">
+          <span class="bar-inner"></span>
+        </span>
+      </div>
+    </div>
+  </template>
+</body>
+</html>
