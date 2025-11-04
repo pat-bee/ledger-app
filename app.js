@@ -149,11 +149,17 @@ function renderTicket(t){
 }
 
 // Fetch helpers
-async function getJSON(path){
-  const r = await fetch(apiBase + path, {headers});
-  if(!r.ok) throw new Error('HTTP '+r.status);
-  return await r.json();
+async function getJSON(url) {
+  try {
+    const r = await fetch(url);               // no headers for GET
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch (err) {
+    console.error('getJSON error for', url, err);
+    throw err;
+  }
 }
+
 
 async function load(){
   // accounts meta
